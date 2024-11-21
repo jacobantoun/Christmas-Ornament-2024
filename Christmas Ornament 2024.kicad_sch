@@ -6013,7 +6013,7 @@
 	)
 	(text "Confirm pinout"
 		(exclude_from_sim no)
-		(at 171.958 113.538 0)
+		(at 203.962 79.756 0)
 		(effects
 			(font
 				(size 2.032 2.032)
