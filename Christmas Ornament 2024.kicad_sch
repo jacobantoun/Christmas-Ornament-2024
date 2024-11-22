@@ -6035,6 +6035,36 @@
 		)
 		(uuid "92c6a5a9-3767-4f8a-8feb-e7321328e610")
 	)
+	(text "R1 = (Vout/Vref - 1) * R2\n112800 = (5.2/0.5 - 1) x 12000"
+		(exclude_from_sim no)
+		(at 213.106 120.904 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "b0ee8b3c-0131-40bb-928d-d9f353b4c8b9")
+	)
+	(text "R1"
+		(exclude_from_sim no)
+		(at 208.28 104.394 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "f464fc59-99d0-4de2-b1f9-0b45c07cf7e1")
+	)
+	(text "R2"
+		(exclude_from_sim no)
+		(at 208.28 113.538 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "f6f8daa3-e6f8-499d-a5f8-b1db12991100")
+	)
 	(global_label "SWD"
 		(shape input)
 		(at 80.01 127 180)
@@ -8371,6 +8401,83 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED_Small")
+		(at 160.02 69.85 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "624709cd-8bac-4ee3-85d7-1e1c4df5d23b")
+		(property "Reference" "D2"
+			(at 159.9565 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Red LED"
+			(at 159.9565 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
+			(at 160.02 69.85 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 160.02 69.85 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "LED Red, 0805"
+			(at 160.02 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB PN" "C2296"
+			(at 160.02 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "669919c3-e2c1-4dd1-9cc5-b3a450165539")
+		)
+		(pin "1"
+			(uuid "06d21290-9c30-4e5e-b97c-cf6b81057062")
+		)
+		(instances
+			(project "Christmas Ornament 2024"
+				(path "/3b6a41c6-a8dd-4eec-bbf2-75fca69ae903"
+					(reference "D2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3V3")
 		(at 255.27 124.46 0)
 		(unit 1)
@@ -9110,6 +9217,83 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Small")
+		(at 148.59 58.42 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "89896dc4-02c8-455f-bbeb-a666e82d1fff")
+		(property "Reference" "R5"
+			(at 148.59 53.34 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "100"
+			(at 148.59 55.88 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 148.59 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 148.59 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 148.59 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "JLCPCB PN" "C17408"
+			(at 148.59 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "f6f0646e-d169-4a8b-85cd-ffd88ef26fde")
+		)
+		(pin "1"
+			(uuid "aa8b0ecf-cacd-45d4-aad9-5e6f60452acb")
+		)
+		(instances
+			(project ""
+				(path "/3b6a41c6-a8dd-4eec-bbf2-75fca69ae903"
+					(reference "R5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 109.22 148.59 0)
 		(unit 1)
@@ -9483,7 +9667,7 @@
 				)
 			)
 		)
-		(property "Value" "LED_Small"
+		(property "Value" "Green LED"
 			(at 159.9565 54.61 0)
 			(effects
 				(font
@@ -9491,7 +9675,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder"
 			(at 160.02 58.42 90)
 			(effects
 				(font
@@ -9509,7 +9693,7 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Light emitting diode, small symbol"
+		(property "Description" "LED Green, 0805"
 			(at 160.02 58.42 0)
 			(effects
 				(font
@@ -9518,7 +9702,7 @@
 				(hide yes)
 			)
 		)
-		(property "JLCPCB PN" ""
+		(property "JLCPCB PN" "C2297"
 			(at 160.02 58.42 0)
 			(effects
 				(font
