@@ -1,0 +1,132 @@
+(footprint "PTS815 Series"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 2.8 -1.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "350f619a-70ab-4a92-b5c0-2a98384bc92b")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "PTS815 Series"
+		(at -15 -9 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "319fe9b6-71cf-4302-88ea-eab02bf2154a")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at -15 -10 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "d076f54e-6e75-46f1-8628-1197c2b45fe8")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at -15 -10 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "cbd1d89b-1b1c-4a09-a9f7-5ddc37144415")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at -15 -10 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "1d3d83ae-9247-4ab8-a602-e3e356e2f949")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_rect
+		(start -1.25 -0.7)
+		(end 5.75 2.9)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "a5230a2c-2476-4cdd-99e7-e60f7fb3acd9")
+	)
+	(fp_text user "${REFERENCE}"
+		(at -15 -7.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "8a46a8b6-4a9c-469f-803d-322ea89d981c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at 0 0)
+		(size 1 0.7)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(thermal_bridge_angle 45)
+		(uuid "55cc8705-d950-44f7-a737-a4922f0f950c")
+	)
+	(pad "2" smd rect
+		(at 4.5 0)
+		(size 1 0.7)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(thermal_bridge_angle 45)
+		(uuid "b9dda14d-1378-41dd-a8d5-279bb39858c2")
+	)
+	(pad "3" smd rect
+		(at 0 2.15)
+		(size 1 0.7)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(thermal_bridge_angle 45)
+		(uuid "70c256f9-9006-4025-92a9-87ddfddc68f6")
+	)
+	(pad "4" smd rect
+		(at 4.5 2.15)
+		(size 1 0.7)
+		(layers "F.Cu" "F.Paste" "F.Mask")
+		(thermal_bridge_angle 45)
+		(uuid "4a147f83-308b-4a14-bf73-79fa7558bc03")
+	)
+	(model "${KIPRJMOD}/3D/PTS815 Series.stp"
+		(offset
+			(xyz 2.25 -1 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
