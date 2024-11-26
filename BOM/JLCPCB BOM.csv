@@ -1,0 +1,26 @@
+﻿Comment,Designator,Value,JLCPCB Part #（optional）
+16V 100nF X7R Â±10% 0402 Multilayer Ceramic Capacitors,"C1,C4,C5,C6,C7,C8,C9,C10,C11",100n,C1525
+25V 1uF X5R Â±10% 0402 Multilayer Ceramic Capacitors,"C2,C12,C19,C20,C22",1u,C52923
+"Unpolarized capacitor, small symbol","C3,C18",10u,C15850
+50V 27pF C0G Â±5% 0402 Multilayer Ceramic,"C13,C14",27p,C1557
+"Unpolarized capacitor, small symbol","C15,C16,C17",22u,C45783
+50V 680pF X7R Â±10% 0603 Multilayer Ceramic Capacitors,C21,680p,C1630
+-- mixed values --,"D1,D3,D5,D6,D9,D10,D11,D12,D18",Green LED,-- mixed values --
+"LED Red, 0805","D2,D4,D7,D8,D13,D14,D15,D16,D17",Red LED,C2296
+USB Micro Type B connector,J1,USB_B_Micro,C428495
+"Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",J2,Conn_01x03,C160389
+"Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)",J5,Conn_01x03,DNP
+"Inductor, small symbol",L1,L_Small,C19734
+27.4Î© 0402 Chip Resistor,"R1,R2",27.4,C274349
+"Resistor, small symbol",R3,120k,C93945
+"Resistor, small symbol",R4,12k,C25752
+"Resistor, small symbol","R5,R7,R8,R9,R10,R11,R12,R13,R14,R15,R16,R17,R18,R19,R20,R21,R22,R23,R24",100,C17408
+"Resistor, small symbol",R6,10k,C17414
+PTS815,"SW1,SW2,SW3,SW4",PTS815,C411883
+A microcontroller by Raspberry Pi,U1,RP2040,C2040
+"3-Axis Accelerometer, 2/4/8/16g range, I2C/SPI interface, LGA-16",U2,LIS3DH,C15134
+"1A Low Dropout regulator, positive, 3.3V fixed output, SOT-223",U3,AMS1117-3.3,C6186
+"128Mb Serial Flash Memory, Standard/Dual/Quad SPI, SOIC-8",U4,W25Q128JVS,C97521
+"Boost Converter, 2.5A switch current limit, 2.2-5.5V Output Voltage, 0.5-5.5V Input Voltage, SOT-23-6",U5,TLV61070ADBV,C6881375
+SENSOR ANALOG -40C-150C SC70-5,U6,TMP235,C2861437
+Two pin crystal,Y1,Crystal,C148313
