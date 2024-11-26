@@ -480,7 +480,7 @@
       "idf": "",
       "netlist": "",
       "plot": "Gerbers/",
-      "pos_files": "",
+      "pos_files": "Position/",
       "specctra_dsn": "",
       "step": "",
       "svg": "",
@@ -527,7 +527,7 @@
           "group_by": true,
           "label": "Footprint",
           "name": "Footprint",
-          "show": true
+          "show": false
         },
         {
           "group_by": false,
@@ -575,7 +575,7 @@
           "group_by": false,
           "label": "Description",
           "name": "Description",
-          "show": false
+          "show": true
         }
       ],
       "filter_string": "",
