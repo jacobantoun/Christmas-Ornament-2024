@@ -43,6 +43,8 @@ int main()
     gpio_init(blinky);
     gpio_set_dir(blinky, GPIO_OUT);
 
+
+    /* Turn all LEDs on */
     for(int j = 2; j <= 25; j++)
     {
         if(j == 10)
@@ -56,15 +58,20 @@ int main()
         setup_pwm_gpio(j, 5000);
         sleep_ms(300);
     }
+    /* From section 7.3 of TMP235 datasheet */
+    const float TMP235_Voffs = 0.500f;
+    const float TMP235_Tinfl = 0.0f;
+    const float TMP235_Tc    = 10.0f;
+    const float adc_conversion_factor = 3.3f / (1 << 12); // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
+    uint16_t TMP235_raw_val = 0;
+    float TMP235_voltage = 0;
+    float temp_C = 0;
+    float temp_F = 0;
 
     while (true) {
-        // gpio_put(blinky, true);
-        // sleep_ms(250);
-        // gpio_put(blinky, false);
         sleep_ms(250);
-        // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
-        const float conversion_factor = 3.3f / (1 << 12);
-        uint16_t result = adc_read();
-        printf("Raw value: 0x%03x, voltage: %f V\n", result, result * conversion_factor);
+        TMP235_raw_val = adc_read();
+        TMP235_voltage = TMP235_raw_val * adc_conversion_factor;
+        printf("Raw value: 0x%03x, voltage: %f V\n", TMP235_raw_val, TMP235_voltage);
     }
 }
