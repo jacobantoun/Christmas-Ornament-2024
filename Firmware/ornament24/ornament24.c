@@ -61,7 +61,7 @@ int main()
     /* From section 7.3 of TMP235 datasheet */
     const float TMP235_Voffs = 0.500f;
     const float TMP235_Tinfl = 0.0f;
-    const float TMP235_Tc    = 10.0f;
+    const float TMP235_Tc    = 0.0100f;
     const float adc_conversion_factor = 3.3f / (1 << 12); // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
     uint16_t TMP235_raw_val = 0;
     float TMP235_voltage = 0;
@@ -69,9 +69,11 @@ int main()
     float temp_F = 0;
 
     while (true) {
-        sleep_ms(250);
         TMP235_raw_val = adc_read();
         TMP235_voltage = TMP235_raw_val * adc_conversion_factor;
-        printf("Raw value: 0x%03x, voltage: %f V\n", TMP235_raw_val, TMP235_voltage);
+        temp_C = (TMP235_voltage - TMP235_Voffs) / TMP235_Tc; // + TMP235_Tinfl);
+        temp_F = (9.0f/5.0f) * temp_C + 32.0f;
+        printf("Raw value: 0x%03x, voltage: %f V, Temp: %f F \n", TMP235_raw_val, TMP235_voltage, temp_F);
+        sleep_ms(250);
     }
 }
