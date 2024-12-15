@@ -35,7 +35,10 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(ornament24 ornament24.c )
+add_executable(ornament24 
+ornament24.c
+lis3dh.c
+)
 
 pico_set_program_name(ornament24 "ornament24")
 pico_set_program_version(ornament24 "0.1")
@@ -50,6 +53,7 @@ target_link_libraries(ornament24
         hardware_pwm
         hardware_i2c
         hardware_adc
+        
         )
 
 
