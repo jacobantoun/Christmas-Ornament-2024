@@ -6,6 +6,9 @@
 #include "hardware/i2c.h"
 #include "lis3dh.h"
 
+// Upper Middle LED
+#define blinky 0
+
 #define TOTAL_LEDS 16 // Total edge LEDs
 #define FLAT_THRESHOLD 5.0f // Threshold in degrees for flat detection
 #define TEMP_LED_COUNT 16
@@ -54,47 +57,6 @@
 #define LED_80      LED_SE
 #define LED_82      LED_SSE
 
-// Array of temperature LEDs for easier access
-const uint LED_TEMPERATURES[] = {
-    LED_54, LED_56, LED_58, LED_60, LED_62, LED_64, LED_66,
-    LED_68, LED_70, LED_72, LED_74, LED_76, LED_78, LED_80, LED_82
-};
-
-const float TEMPERATURES[] = {
-    54.0f, 56.0f, 58.0f, 60.0f, 62.0f, 64.0f, 66.0f, 68.0f,
-    70.0f, 72.0f, 74.0f, 76.0f, 78.0f, 80.0f, 82.0f
-};
-
-#define LED_COUNT (sizeof(LED_TEMPERATURES) / sizeof(LED_TEMPERATURES[0]))
-
-void light_led_for_temperature(float temp_f) 
-{
-    // Turn off all LEDs first
-    for (int i = 0; i < LED_COUNT; i++) 
-    {
-        gpio_put(LED_TEMPERATURES[i], 0);
-    }
-
-    // Find the closest temperature index
-    int led_index = -1; // Initialize to invalid index
-    for (int i = 0; i < LED_COUNT; i++) 
-    {
-        if (temp_f >= TEMPERATURES[i] && temp_f < TEMPERATURES[i] + 2.0f) 
-        {
-            led_index = i;
-            break;
-        }
-    }
-
-
-    // If a valid index is found, light the corresponding LED
-    if (led_index != -1) 
-    {
-        gpio_put(LED_TEMPERATURES[led_index], 1);
-    }
-}
-
-#define blinky 0
 // Array to track initialized slices (8 slices on the RP2040)
 bool pwm_slice_initialized[8] = {false};
 
@@ -120,6 +82,51 @@ void setup_pwm_gpio(uint gpio, uint16_t duty_cycle) {
     // Set the duty cycle for the specified GPIO (channel)
     pwm_set_chan_level(slice_num, channel, duty_cycle);
 }
+
+// Array of temperature LEDs for easier access
+const uint LED_TEMPERATURES[] = {
+    LED_54, LED_56, LED_58, LED_60, LED_62, LED_64, LED_66,
+    LED_68, LED_70, LED_72, LED_74, LED_76, LED_78, LED_80, LED_82
+};
+
+const float TEMPERATURES[] = {
+    54.0f, 56.0f, 58.0f, 60.0f, 62.0f, 64.0f, 66.0f, 68.0f,
+    70.0f, 72.0f, 74.0f, 76.0f, 78.0f, 80.0f, 82.0f
+};
+
+#define LED_COUNT (sizeof(LED_TEMPERATURES) / sizeof(LED_TEMPERATURES[0]))
+
+void light_led_for_temperature(float temp_f) 
+{
+    // Turn off all LEDs first
+    for (int i = 0; i < LED_COUNT; i++) 
+    {
+        gpio_put(LED_TEMPERATURES[i], 0);
+        //setup_pwm_gpio(LED_TEMPERATURES[i], 0);
+    }
+
+    // Find the closest temperature index
+    int led_index = -1; // Initialize to invalid index
+    for (int i = 0; i < LED_COUNT; i++) 
+    {
+        if (temp_f >= TEMPERATURES[i] && temp_f < TEMPERATURES[i] + 2.0f) 
+        {
+            led_index = i;
+            break;
+        }
+    }
+
+
+    // If a valid index is found, light the corresponding LED
+    if (led_index != -1) 
+    {
+        gpio_put(LED_TEMPERATURES[led_index], 1);
+        //setup_pwm_gpio(led_index, 5000);
+    }
+}
+
+
+
 // Function to map tilt angle to LED index
 int angle_to_led(float angle) 
 {
@@ -142,8 +149,8 @@ void update_leds(float roll, float pitch, int numberOfLEDs)
     // Turn off all LEDs
     for (int i = 0; i < TOTAL_LEDS; i++) 
     {
-        gpio_put(led_pins[i], 0);
-        //setup_pwm_gpio(led_pins[i], 0);
+        //gpio_put(led_pins[i], 0);
+        setup_pwm_gpio(led_pins[i], 0);
     }
     gpio_put(LED_MID, 0);
 
@@ -168,14 +175,19 @@ void update_leds(float roll, float pitch, int numberOfLEDs)
     for (int i = -numberOfLEDs / 2; i <= numberOfLEDs / 2; i++) 
     {
         int led_index = (main_led + i + TOTAL_LEDS) % TOTAL_LEDS; // Ensure index wraps around
-        gpio_put(led_pins[led_index], 1);
-        //setup_pwm_gpio(led_pins[led_index], 5000);
+        //gpio_put(led_pins[led_index], 1);
+        setup_pwm_gpio(led_pins[led_index], 5000);
     }
 }
 
 
+// Different modes that the ornament is in
+#define BOOT_MODE   0
+#define TILT_MODE   1
+#define TEMP_MODE   2
+#define NAP_MODE    3
 
-
+int current_mode = BOOT_MODE;
 
 int main()
 {
@@ -198,35 +210,23 @@ int main()
 
     gpio_put(blinky, false);
 
-    /* Turn all LEDs on */
-    for(int j = 2; j <= 25; j++)
-    {
-        if(j == 10)
-        {
-            j = 15;
-        }
-        if(j == 15)
-        {
-            j = 18;
-        }
-        gpio_init(j);
-        gpio_set_dir(j, GPIO_OUT);
-        //gpio_put(j, false);
-        //setup_pwm_gpio(j, 5000);
-        //sleep_ms(300);
-    }
+    // Define LED GPIOs in an array for easy access
+    int led_pins_array[17] = {
+        LED_N, LED_NNW, LED_NW, LED_WNW, LED_W, LED_WSW, LED_SW, LED_SSW,
+        LED_S, LED_SSE, LED_SE, LED_ESE, LED_E, LED_ENE, LED_NE, LED_NNE, LED_MID
+    };
+
+
     gpio_init(LED_MID);
     gpio_set_dir(LED_MID, GPIO_OUT);
 
     // Initialize the accelerometer
     if (!lis3dh_init()) {
         printf("Failed to initialize LIS3DH!\n");
-        
         return -1;
     }
     
     printf("LIS3DH initialized successfully!\n");
-    //gpio_put(25, true);
 
     /* From section 7.3 of TMP235 datasheet */
     const float TMP235_Voffs = 0.500f;
@@ -238,8 +238,75 @@ int main()
     float temp_C = 0;
     float temp_F = 0;
 
-    while (true) {
+    gpio_init(button_mode);
+    gpio_set_dir(button_mode, GPIO_IN);
+    gpio_pull_up(button_mode);
 
+    bool init_leds = true;
+
+    int button_mode_pressed_count = 0;
+    bool button_mode_pressed = false;
+
+
+    while (true) {
+        /* Mode Switcher */
+        // if(!gpio_get(button_mode))
+        // {
+        //     sleep_ms(200);
+        //     if(!gpio_get(button_mode))
+        //     {
+        //         for(int j = 0; j <= 16; j++)
+        //         { 
+        //             gpio_init(led_pins_array[j]);
+        //             gpio_set_dir(led_pins_array[j], GPIO_OUT);
+        //             gpio_put(led_pins_array[j], true);
+        //         }
+        //         current_mode++;
+        //         init_leds = true;
+        //         if(current_mode > 2)
+        //         {
+        //             current_mode = 0;
+        //         }
+        //     }
+        // }
+
+        if(!gpio_get(button_mode))
+        {
+            button_mode_pressed_count++;
+            if(button_mode_pressed_count > 50)
+            {
+                button_mode_pressed = true;
+            }
+        }
+        else
+        {
+            button_mode_pressed_count--;
+            if(button_mode_pressed_count <= 0)
+            {
+                button_mode_pressed_count = 0;
+            }
+            //button_mode_pressed = false;
+        }
+        if(button_mode_pressed == true)
+        {
+            for(int j = 0; j <= 16; j++)
+            { 
+                gpio_init(led_pins_array[j]);
+                gpio_set_dir(led_pins_array[j], GPIO_OUT);
+                gpio_put(led_pins_array[j], true);
+            }
+            current_mode++;
+            init_leds = true;
+            if(current_mode > 2)
+            {
+                current_mode = 0;
+            }
+            button_mode_pressed = false;
+            button_mode_pressed_count = 0;
+        }
+
+
+        /* Get acceleration values */
         acceleration_t accel = lis3dh_read_acceleration();
         angle_t angles = calculate_angles(accel);
         
@@ -251,15 +318,78 @@ int main()
         //printf("Acceleration: X=%.2fg Y=%.2fg Z=%.2fg\n", x_g, y_g, z_g);
         //printf("Angles: Pitch=%.1f° Roll=%.1f°\n\n", angles.pitch, angles.roll);
 
-        //update_leds(angles.pitch, angles.roll, 3);
-        
-
         TMP235_raw_val = adc_read();
         TMP235_voltage = TMP235_raw_val * adc_conversion_factor;
         temp_C = (TMP235_voltage - TMP235_Voffs) / TMP235_Tc; // + TMP235_Tinfl);
         temp_F = (9.0f/5.0f) * temp_C + 32.0f;
-        light_led_for_temperature(temp_F);
+        //light_led_for_temperature(temp_F);
         //printf("Raw value: 0x%03x, voltage: %f V, Temp: %f F \r\n", TMP235_raw_val, TMP235_voltage, temp_F);
         sleep_ms(20);
+
+
+        switch(current_mode)
+        {
+            case BOOT_MODE:
+                if(init_leds == true)
+                {
+                    // Set LEDs as output
+                    for(int j = 0; j <= 16; j++)
+                    { 
+                        gpio_init(led_pins_array[j]);
+                        gpio_set_dir(led_pins_array[j], GPIO_OUT);
+                        gpio_put(led_pins_array[j], true);
+                        gpio_put(led_pins_array[j - 1], false);
+                        sleep_ms(75);
+                    }
+                    sleep_ms(250);
+                    for(int x = 16; x >= 0; x--)
+                    {
+                        gpio_put(led_pins_array[x], true);
+                        gpio_put(led_pins_array[x + 1], false);
+                        sleep_ms(75);
+                    }
+                    for(int a = 0; a <= 16; a++)
+                    {
+                        gpio_init(led_pins_array[a]);
+                        gpio_set_dir(led_pins_array[a], GPIO_OUT);
+                        gpio_put(led_pins_array[a], false);                        
+                    }
+                    init_leds = false;
+                    current_mode = TILT_MODE;
+                }
+                break;
+            
+            case TILT_MODE:
+                if(init_leds == true)
+                {
+                    // Set LEDs as output
+                    for(int j = 0; j <= 16; j++)
+                    {
+                        setup_pwm_gpio(led_pins_array[j], 0);
+                    }
+                    init_leds = false;
+                }
+                update_leds(angles.pitch, angles.roll, 3);
+                break;
+
+            case TEMP_MODE:
+                if(init_leds == true)
+                {
+                    for(int j = 0; j <= 16; j++)
+                    { 
+                        gpio_init(led_pins_array[j]);
+                        gpio_set_dir(led_pins_array[j], GPIO_OUT);
+                        gpio_put(led_pins_array[j], false);
+                        //setup_pwm_gpio(j, 000);
+                    }
+                    init_leds = false;
+                }
+                light_led_for_temperature(temp_F);
+                break;
+
+            case NAP_MODE:
+
+                break;
+        }
     }
 }
