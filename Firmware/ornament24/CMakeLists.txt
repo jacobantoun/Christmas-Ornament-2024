@@ -28,6 +28,9 @@ set(PICO_BOARD pico CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
+include(pico_extras_import.cmake)
+
+
 project(ornament24 C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
