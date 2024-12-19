@@ -40,6 +40,8 @@ ornament24.c
 lis3dh.c
 )
 
+add_compile_definitions(PICO_XOSC_STARTUP_DELAY_MULTIPLIER=64)
+
 pico_set_program_name(ornament24 "ornament24")
 pico_set_program_version(ornament24 "0.1")
 
@@ -47,20 +49,21 @@ pico_set_program_version(ornament24 "0.1")
 pico_enable_stdio_uart(ornament24 0)
 pico_enable_stdio_usb(ornament24 1)
 
-# Add the standard library to the build
-target_link_libraries(ornament24
-        pico_stdlib
-        hardware_pwm
-        hardware_i2c
-        hardware_adc
-        
-        )
 
 
 # Add the standard include files to the build
 target_include_directories(ornament24 PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
 )
+# Add the standard library to the build
+target_link_libraries(ornament24
+        pico_stdlib
+        hardware_pwm
+        hardware_i2c
+        hardware_adc
+        hardware_sync
+        hardware_sleep
+        )
 
 pico_add_extra_outputs(ornament24)
 

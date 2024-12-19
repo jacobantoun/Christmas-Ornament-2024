@@ -5,6 +5,11 @@
 #include "hardware/adc.h"
 #include "hardware/i2c.h"
 #include "lis3dh.h"
+#include "hardware/irq.h"
+#include "hardware/timer.h"
+// #include "hardware/rtc.h"
+#include "pico/sleep.h"
+
 
 // Upper Middle LED
 #define blinky 0
@@ -12,10 +17,6 @@
 #define TOTAL_LEDS 16 // Total edge LEDs
 #define FLAT_THRESHOLD 5.0f // Threshold in degrees for flat detection
 #define TEMP_LED_COUNT 16
-// #ifndef M_PI
-// #define M_PI 3.141592653589793
-// #endif
-
 
 // LED for spirit level
 #define LED_N       2
@@ -116,7 +117,6 @@ void light_led_for_temperature(float temp_f)
         }
     }
 
-
     // If a valid index is found, light the corresponding LED
     if (led_index != -1) 
     {
@@ -124,8 +124,6 @@ void light_led_for_temperature(float temp_f)
         //setup_pwm_gpio(led_index, 5000);
     }
 }
-
-
 
 // Function to map tilt angle to LED index
 int angle_to_led(float angle) 
@@ -180,7 +178,6 @@ void update_leds(float roll, float pitch, int numberOfLEDs)
     }
 }
 
-
 // Different modes that the ornament is in
 #define BOOT_MODE   0
 #define TILT_MODE   1
@@ -189,10 +186,32 @@ void update_leds(float roll, float pitch, int numberOfLEDs)
 
 int current_mode = BOOT_MODE;
 
+volatile int counter = 0;
+
+// Timer interrupt callback
+bool timer_callback(repeating_timer_t *rt) 
+{
+    counter++;
+    return true; // Return true to keep the timer running
+}
+
+// Interrupt callback function
+void gpio_callback(uint gpio, uint32_t events) 
+{
+    // This function is triggered when the button is pressed
+    printf("Waking up from GPIO %d\n", gpio);
+}
+
 int main()
 {
     stdio_init_all();
     adc_init();
+
+    // Create a repeating timer
+    repeating_timer_t timer;
+
+    // Set up a timer to call the callback once every second (1e6 microseconds)
+    add_repeating_timer_ms(-1000, timer_callback, NULL, &timer);
 
     adc_gpio_init(29);
     adc_select_input(3);
@@ -216,9 +235,9 @@ int main()
         LED_S, LED_SSE, LED_SE, LED_ESE, LED_E, LED_ENE, LED_NE, LED_NNE, LED_MID
     };
 
-
     gpio_init(LED_MID);
     gpio_set_dir(LED_MID, GPIO_OUT);
+    gpio_put(LED_MID, true);
 
     // Initialize the accelerometer
     if (!lis3dh_init()) {
@@ -249,33 +268,13 @@ int main()
 
 
     while (true) {
-        /* Mode Switcher */
-        // if(!gpio_get(button_mode))
-        // {
-        //     sleep_ms(200);
-        //     if(!gpio_get(button_mode))
-        //     {
-        //         for(int j = 0; j <= 16; j++)
-        //         { 
-        //             gpio_init(led_pins_array[j]);
-        //             gpio_set_dir(led_pins_array[j], GPIO_OUT);
-        //             gpio_put(led_pins_array[j], true);
-        //         }
-        //         current_mode++;
-        //         init_leds = true;
-        //         if(current_mode > 2)
-        //         {
-        //             current_mode = 0;
-        //         }
-        //     }
-        // }
-
         if(!gpio_get(button_mode))
         {
             button_mode_pressed_count++;
             if(button_mode_pressed_count > 50)
             {
                 button_mode_pressed = true;
+                counter = 0;
             }
         }
         else
@@ -303,6 +302,15 @@ int main()
             }
             button_mode_pressed = false;
             button_mode_pressed_count = 0;
+        }
+
+        // Put to sleep if inactive for certain amount of time
+        if(counter > 5)
+        {
+            //enter_sleep_mode();
+            printf("Hello\r\n");
+            //sleep_run_from_xosc();
+            counter = 0;
         }
 
 
