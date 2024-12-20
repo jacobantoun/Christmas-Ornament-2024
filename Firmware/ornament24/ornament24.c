@@ -1,15 +1,13 @@
 #include <stdio.h>
 #include <math.h>
 #include "pico/stdlib.h"
+
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
 #include "hardware/i2c.h"
 #include "lis3dh.h"
 #include "hardware/irq.h"
 #include "hardware/timer.h"
-// #include "hardware/rtc.h"
-// #include "pico/sleep.h"
-
 
 // Upper Middle LED
 #define blinky 0
@@ -40,6 +38,8 @@
 // Button IO
 #define button_wake 16
 #define button_mode 17
+#define WAKE_GPIO button_wake
+#define WAKE_PIN WAKE_GPIO
 
 // Temperature LEDs
 #define LED_54      LED_SSW
@@ -92,38 +92,12 @@ const uint LED_TEMPERATURES[] = {
 
 const float TEMPERATURES[] = {
     54.0f, 56.0f, 58.0f, 60.0f, 62.0f, 64.0f, 66.0f, 68.0f,
-    70.0f, 72.0f, 74.0f, 76.0f, 78.0f, 80.0f, 82.0f
+    70.0f, 72.0f, 73.0f, 74.0f, 76.0f, 78.0f, 820.0f
 };
 
 #define LED_COUNT (sizeof(LED_TEMPERATURES) / sizeof(LED_TEMPERATURES[0]))
 
-void light_led_for_temperature(float temp_f) 
-{
-    // Turn off all LEDs first
-    for (int i = 0; i < LED_COUNT; i++) 
-    {
-        gpio_put(LED_TEMPERATURES[i], 0);
-        //setup_pwm_gpio(LED_TEMPERATURES[i], 0);
-    }
 
-    // Find the closest temperature index
-    int led_index = -1; // Initialize to invalid index
-    for (int i = 0; i < LED_COUNT; i++) 
-    {
-        if (temp_f >= TEMPERATURES[i] && temp_f < TEMPERATURES[i] + 2.0f) 
-        {
-            led_index = i;
-            break;
-        }
-    }
-
-    // If a valid index is found, light the corresponding LED
-    if (led_index != -1) 
-    {
-        gpio_put(LED_TEMPERATURES[led_index], 1);
-        //setup_pwm_gpio(led_index, 5000);
-    }
-}
 
 // Function to map tilt angle to LED index
 int angle_to_led(float angle) 
@@ -195,11 +169,105 @@ bool timer_callback(repeating_timer_t *rt)
     return true; // Return true to keep the timer running
 }
 
-// Interrupt callback function
-void gpio_callback(uint gpio, uint32_t events) 
+
+// Store configurations for each slice
+static struct {
+    uint wrap;
+    bool in_use;
+} slice_configs[8] = {0};
+
+// Initialize a GPIO pin for PWM output with independent configuration
+bool pwm_gpio_init(uint gpio) {
+    // Validate GPIO pin
+    if (gpio >= 30) return false;  // RP2040 has GPIO 0-29
+    
+    // Get slice and channel for this GPIO
+    uint slice_num = pwm_gpio_to_slice_num(gpio);
+    uint channel = pwm_gpio_to_channel(gpio);
+    
+    // If slice is already in use, only proceed if wrap value matches
+    if (slice_configs[slice_num].in_use) {
+        // Set GPIO function to PWM but don't reconfigure the slice
+        gpio_set_function(gpio, GPIO_FUNC_PWM);
+        return true;
+    }
+    
+    // Configure new slice
+    slice_configs[slice_num].wrap = 255;
+    slice_configs[slice_num].in_use = true;
+    
+    // Set GPIO function to PWM
+    gpio_set_function(gpio, GPIO_FUNC_PWM);
+    
+    // Configure and enable the slice
+    pwm_config config = pwm_get_default_config();
+    pwm_config_set_wrap(&config, 255);
+    pwm_init(slice_num, &config, true);
+    
+    // Set initial duty cycle to 0
+    pwm_set_chan_level(slice_num, channel, 0);
+    
+    return true;
+}
+
+// Set PWM output level (0-255) for a specific GPIO
+bool pwm_gpio_put(uint gpio, uint8_t level) {
+    if (gpio >= 30) return false;
+    
+    uint slice_num = pwm_gpio_to_slice_num(gpio);
+    uint channel = pwm_gpio_to_channel(gpio);
+    
+    // Check if slice is initialized
+    if (!slice_configs[slice_num].in_use) {
+        return false;
+    }
+    
+    pwm_set_chan_level(slice_num, channel, level);
+    return true;
+}
+
+// Get the slice number for a GPIO (useful for checking potential conflicts)
+uint pwm_gpio_get_slice(uint gpio) {
+    if (gpio >= 30) return 8;
+    return pwm_gpio_to_slice_num(gpio);
+}
+
+// Get the channel (A or B) for a GPIO
+uint pwm_gpio_get_channel(uint gpio) {
+    if (gpio >= 30) return 2;
+    return pwm_gpio_to_channel(gpio);
+}
+
+void light_led_for_temperature(float temp_f) 
 {
-    // This function is triggered when the button is pressed
-    printf("Waking up from GPIO %d\n", gpio);
+    // Turn off all LEDs first
+    for (int i = 0; i < LED_COUNT; i++) 
+    {
+        gpio_put(LED_TEMPERATURES[i], 0);
+        //pwm_gpio_put(LED_TEMPERATURES[i], 0);
+        //setup_pwm_gpio(LED_TEMPERATURES[i], 0);
+    }
+
+    // Find the closest temperature index
+    int led_index = -1; // Initialize to invalid index
+    for (int i = 0; i < LED_COUNT; i++) 
+    {
+        if (temp_f >= TEMPERATURES[i] && temp_f < TEMPERATURES[i] + 2.0f) 
+        {
+            led_index = i;
+            break;
+        }
+    }
+
+    // If a valid index is found, light the corresponding LED
+    if (led_index != -1) 
+    {
+        gpio_put(LED_TEMPERATURES[led_index], 1);
+        sleep_ms(1);
+        gpio_put(LED_TEMPERATURES[led_index], 0);
+        //pwm_gpio_put(LED_TEMPERATURES[led_index], 10);
+        //setup_pwm_gpio(led_index, 5000);
+    }
 }
 
 int main()
@@ -266,7 +334,6 @@ int main()
     int button_mode_pressed_count = 0;
     bool button_mode_pressed = false;
 
-
     while (true) {
         if(!gpio_get(button_mode))
         {
@@ -306,10 +373,7 @@ int main()
 
         // Put to sleep if inactive for certain amount of time
         if(counter > 5)
-        {
-            //enter_sleep_mode();
-            printf("Hello\r\n");
-            //sleep_run_from_xosc();
+        {    
             counter = 0;
         }
 
@@ -347,20 +411,19 @@ int main()
                         gpio_set_dir(led_pins_array[j], GPIO_OUT);
                         gpio_put(led_pins_array[j], true);
                         gpio_put(led_pins_array[j - 1], false);
-                        sleep_ms(75);
+                        //pwm_gpio_init(led_pins_array[j]);
+                        //pwm_gpio_put(led_pins_array[j], 10);
+                        //setup_pwm_gpio(led_pins_array[j - 1], 10);
+                        sleep_ms(100);
                     }
                     sleep_ms(250);
                     for(int x = 16; x >= 0; x--)
                     {
-                        gpio_put(led_pins_array[x], true);
-                        gpio_put(led_pins_array[x + 1], false);
+                        // gpio_put(led_pins_array[x], true);
+                        // gpio_put(led_pins_array[x + 1], false);
+                        //pwm_gpio_init(led_pins_array[x]);
+                        //pwm_gpio_put(led_pins_array[x], 0);
                         sleep_ms(75);
-                    }
-                    for(int a = 0; a <= 16; a++)
-                    {
-                        gpio_init(led_pins_array[a]);
-                        gpio_set_dir(led_pins_array[a], GPIO_OUT);
-                        gpio_put(led_pins_array[a], false);                        
                     }
                     init_leds = false;
                     current_mode = TILT_MODE;

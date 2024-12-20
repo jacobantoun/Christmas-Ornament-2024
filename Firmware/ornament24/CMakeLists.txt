@@ -27,7 +27,7 @@ set(PICO_BOARD pico CACHE STRING "Board type")
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
-
+set(PICO_EXTRAS_PATH ${CMAKE_CURRENT_LIST_DIR}/pico-extras)
 include(pico_extras_import.cmake)
 
 
@@ -66,6 +66,9 @@ target_link_libraries(ornament24
         hardware_adc
         hardware_sync
         hardware_sleep
+        hardware_watchdog
+        hardware_clocks
+        hardware_rtc
         )
 
 pico_add_extra_outputs(ornament24)
